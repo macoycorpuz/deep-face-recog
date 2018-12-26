@@ -7,6 +7,7 @@ import os.path
 from model import create_model
 from sklearn.metrics import f1_score, accuracy_score
 import csv
+import pickle
 
 class IdentityMetadata():
     def __init__(self, base, name, file):
@@ -46,7 +47,14 @@ def align_image(img):
 def distance(emb1, emb2):
     return np.sum(np.square(emb1 - emb2))
 
-#Save embedded Vector Function
+#Save embedded vector to pkl function
+def save_embedded_vectors_to_pkl(filename, embedded_vectors):
+    output = open(filename, 'wb')
+    pickle.dump(embedded, output)
+    output.close()
+    print("\n Embedded Vectors successfully saved to " + filename)
+
+#Save embedded vector to csv function
 def save_embedded_vectors_to_csv(filename, embedded_vectors):
     with open(filename, 'w') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -105,10 +113,16 @@ def show_embedded_vectors_from_csv(idx1, idx2):
     plt.subplot(122)
     plt.imshow(load_image(metadata[idx2].image_path()))
 
+def show_embedded_vectors_from_pkl(filename):
+    pkl_file = open(filename, 'rb')
+    output = pickle.load(pkl_file)
+    pkl_file.close()
+    print(output)
 
 
 ################ Main() ################
 evfile = 'embedded.csv'
+evfilepkl = 'embedded.pkl'
 metadata = load_metadata('images')
 nn4_small2_pretrained = create_model()
 nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
@@ -137,10 +151,12 @@ for i, m in enumerate(metadata):
 
 ######### Save Embedded Vectors #########
 #save_embedded_vectors_to_csv(evfile, embedded)
+#save_embedded_vectors_to_pkl(evfilepkl, embedded)
 
 ############ OUTPUT #################
 #show_aligned_images()
 #show_embedded_vectors()
 #show_distance_threshold()
 #show_embedded_vectors_from_csv(2, 3)
+show_embedded_vectors_from_pkl(evfilepkl)
 #plt.show()
