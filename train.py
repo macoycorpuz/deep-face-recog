@@ -1,10 +1,9 @@
-from model import create_model
-
 from keras import backend as K
 from keras.models import Model
 from keras.layers import Input, Layer
 
-from data import triplet_generator
+from lib.model import create_model
+from lib.data import triplet_generator
 
 
 # Create model

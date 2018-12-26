@@ -1,13 +1,13 @@
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from align import AlignDlib
 import numpy as np
 import os.path
-from model import create_model
 from sklearn.metrics import f1_score, accuracy_score
-import csv
-import pickle
+
+from lib.align import AlignDlib
+from lib.model import create_model
+from lib.evhelper import save_embedded_vectors_to_csv, save_embedded_vectors_to_pkl
 
 class IdentityMetadata():
     def __init__(self, base, name, file):
@@ -46,21 +46,6 @@ def align_image(img):
 
 def distance(emb1, emb2):
     return np.sum(np.square(emb1 - emb2))
-
-#Save embedded vector to pkl function
-def save_embedded_vectors_to_pkl(filename, embedded_vectors):
-    output = open(filename, 'wb')
-    pickle.dump(embedded, output)
-    output.close()
-    print("\n Embedded Vectors successfully saved to " + filename)
-
-#Save embedded vector to csv function
-def save_embedded_vectors_to_csv(filename, embedded_vectors):
-    with open(filename, 'w') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for img_vector in embedded_vectors:
-            spamwriter.writerow(img_vector)
-        print("\n Embedded Vectors successfully saved to " + filename)
 
 ########### Mat plotting functions ###########
 
