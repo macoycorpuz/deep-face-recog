@@ -8,6 +8,8 @@ from model import create_model
 from sklearn.metrics import f1_score, accuracy_score
 import csv
 import pickle
+import pandas as pd
+from sklearn.decomposition import PCA
 
 class IdentityMetadata():
     def __init__(self, base, name, file):
@@ -106,6 +108,7 @@ def show_embedded_vectors_from_csv(idx1, idx2):
             ctr += 1
         ev1 = np.array(ev1)
         ev2 = np.array(ev2)
+        print(ev1)
     plt.figure(figsize=(8,3))
     plt.suptitle(f'Distance = {distance(ev1, ev2):.2f}')
     plt.subplot(121)
@@ -124,29 +127,29 @@ def show_embedded_vectors_from_pkl(filename):
 evfile = 'embedded.csv'
 evfilepkl = 'embedded.pkl'
 metadata = load_metadata('images')
-nn4_small2_pretrained = create_model()
-nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
+# nn4_small2_pretrained = create_model()
+# nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
 
-# Initialize the OpenFace face alignment utility
-alignment = AlignDlib('models/landmarks.dat')
+# # Initialize the OpenFace face alignment utility
+# alignment = AlignDlib('models/landmarks.dat')
 
-# Load an image of Jacques Chirac
-jc_orig = load_image(metadata[2].image_path())
+# # Load an image of Jacques Chirac
+# jc_orig = load_image(metadata[2].image_path())
 
-# Detect face and return bounding box
-bb = alignment.getLargestFaceBoundingBox(jc_orig)
+# # Detect face and return bounding box
+# bb = alignment.getLargestFaceBoundingBox(jc_orig)
 
-# Transform image using specified face landmark indices and crop image to 96x96
-jc_aligned = alignment.align(96, jc_orig, bb, landmarkIndices=AlignDlib.OUTER_EYES_AND_NOSE)
+# # Transform image using specified face landmark indices and crop image to 96x96
+# jc_aligned = alignment.align(96, jc_orig, bb, landmarkIndices=AlignDlib.OUTER_EYES_AND_NOSE)
 
-embedded = np.zeros((metadata.shape[0], 128))
-for i, m in enumerate(metadata):
-    img = load_image(m.image_path())
-    img = align_image(img)
-    # scale RGB values to interval [0,1]
-    img = (img / 255.).astype(np.float32)
-    # obtain embedding vector for image
-    embedded[i] = nn4_small2_pretrained.predict(np.expand_dims(img, axis=0))[0]
+# embedded = np.zeros((metadata.shape[0], 128))
+# for i, m in enumerate(metadata):
+#     img = load_image(m.image_path())
+#     img = align_image(img)
+#     # scale RGB values to interval [0,1]
+#     img = (img / 255.).astype(np.float32)
+#     # obtain embedding vector for image
+#     embedded[i] = nn4_small2_pretrained.predict(np.expand_dims(img, axis=0))[0]
 
 
 ######### Save Embedded Vectors #########
@@ -157,6 +160,6 @@ for i, m in enumerate(metadata):
 #show_aligned_images()
 #show_embedded_vectors()
 #show_distance_threshold()
-#show_embedded_vectors_from_csv(2, 3)
-show_embedded_vectors_from_pkl(evfilepkl)
+show_embedded_vectors_from_csv(2, 3)
+#show_embedded_vectors_from_pkl(evfilepkl)
 #plt.show()
