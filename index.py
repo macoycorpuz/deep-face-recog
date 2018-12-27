@@ -1,5 +1,6 @@
 import bz2
 import os
+import numpy as np
 from urllib.request import urlopen
 from lib.evhelper import save_embedded_vectors_to_csv, save_embedded_vectors_to_pkl
 from lib.imglib import load_metadata, load_image, align_image
@@ -15,7 +16,7 @@ def download_landmarks(dst_file):
             data = src.read(1024)
     print("Landmarks Downloaded. *note: if not working, download manually (shape_predictor_68_face_landmarks.dat)")
 
-def download_embedded_vectors(**file):
+def download_embedded_vectors(csvf, pklf):
     metadata = load_metadata('images')
     nn4_small2_pretrained = create_model()
     nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
@@ -25,22 +26,18 @@ def download_embedded_vectors(**file):
         img = align_image(img)
         img = (img / 255.).astype(np.float32)
         embedded[i] = nn4_small2_pretrained.predict(np.expand_dims(img, axis=0))[0]
-    
-    save_embedded_vectors_to_csv(file["csvfile"], embedded)
-    save_embedded_vectors_to_pkl(file["pklfile"], embedded)
-    print("Embedded Vectors downloaded")
 
-
+        save_embedded_vectors_to_csv(csvf, embedded)
+        save_embedded_vectors_to_pkl(pklf, embedded)
 
 dst_dir = 'models'
 landmarkfile = os.path.join(dst_dir, 'landmarks.dat')
-dst_file = { 
-    "pklfile":os.path.join(dst_dir, 'embedded.pkl'), 
-    "csvfile":os.path.join(dst_dir, 'embedded.csv')
-    }
+csvfile = os.path.join(dst_dir, 'labeled_ev.csv')
+pklfile = os.path.join(dst_dir, 'labeled_ev.pkl')
 
 if not os.path.exists(dst_dir): 
     os.makedirs(dst_dir)
-if not os.path.exists(landmarkfile):
+#if not os.path.exists(landmarkfile):
     #download_landmarks(landmarkfile)
-    download_embedded_vectors(**dst_file)
+
+download_embedded_vectors(csvfile, pklfile)

@@ -9,8 +9,8 @@ from keras.layers.pooling import MaxPooling2D, AveragePooling2D
 from keras.models import Model
 from keras import backend as K
 
-import utils
-from utils import LRN2D
+import lib.utils as utils
+from lib.utils import LRN2D
 
 def create_model():
     myInput = Input(shape=(96, 96, 3))

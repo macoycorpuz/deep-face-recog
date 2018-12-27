@@ -36,8 +36,10 @@ def load_image(path):
     return img[...,::-1]
 
 def align_image(img):
+    alignment = AlignDlib('models/landmark.dat')
     return alignment.align(96, img, alignment.getLargestFaceBoundingBox(img), 
                            landmarkIndices=AlignDlib.OUTER_EYES_AND_NOSE)
+                           
 
 def distance(emb1, emb2):
     return np.sum(np.square(emb1 - emb2))
