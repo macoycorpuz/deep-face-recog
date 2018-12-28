@@ -1,6 +1,6 @@
 import lib.imgutil as iu
 from lib.model import create_model
-from plot_img import show_pair
+from lib.plot_img import show_pair
 
 metadata = iu.load_metadata('images')
 nn4 = create_model()

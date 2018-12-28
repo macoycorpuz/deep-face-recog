@@ -3,19 +3,24 @@ import csv
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 
-evfile = 'embedded.csv'
-df = pd.read_csv(evfile, delimiter=' ', quotechar='|', header=None)
+ev_file = 'embedded-vectors/labeled_ev.csv'
+df = pd.read_csv(ev_file, delimiter=' ', quotechar='|', header=None)
 df.dropna(how="all", inplace=True)
-data = df.ix[:,0:8].values
+data = df.values
 
-z_scaler = StandardScaler()
-z_data = z_scaler.fit_transform(data)
-pca_trafo = PCA().fit(z_data);
+pca = PCA(n_components=128)
+pca.fit(data)
+pca_data = pca.transform(data)
+pca_inv_data = pca.inverse_transform(pca_data)
 
-pca_trafo = PCA(n_components=2)
-pca_data = pca_trafo.fit_transform(z_data)
-pca_inv_data = pca_trafo.inverse_transform(np.eye(2))
 
-get_distance(0,1)
-print(distance(pca_data[0], pca_data[1]))
+print("original shape:   ", data.shape)
+print("transformed shape:", pca_data.shape)
+print("inverse transform shape:", pca_inv_data.shape)
+print(data)
+print(pca_inv_data)
+# plt.scatter(pca_data[:, 0], pca_data[:, 1])
+# plt.axis('equal')
+# plt.show()
