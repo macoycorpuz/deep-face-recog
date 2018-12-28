@@ -5,6 +5,7 @@ import os.path
 from model import create_model
 import csv
 import pickle
+import time
 
 class IdentityMetadata():
     def __init__(self, base, name, file):
@@ -38,7 +39,6 @@ def load_image(path):
     return img[...,::-1]
 
 def align_image(img):
-    alignment = AlignDlib('models/landmarks.dat')
     return alignment.align(96, img, alignment.getLargestFaceBoundingBox(img), 
                            landmarkIndices=AlignDlib.OUTER_EYES_AND_NOSE)
 
@@ -47,7 +47,7 @@ def save_embedded_vectors_to_pkl(filename, embedded_vectors):
     output = open(filename, 'wb')
     pickle.dump(embedded, output)
     output.close()
-    print("\n Embedded Vectors successfully saved to " + filename)
+    print("Embedded Vectors successfully saved to " + filename)
 
 #Save embedded vector to csv function
 def save_embedded_vectors_to_csv(filename, embedded_vectors):
@@ -55,7 +55,7 @@ def save_embedded_vectors_to_csv(filename, embedded_vectors):
         spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         for img_vector in embedded_vectors:
             spamwriter.writerow(img_vector)
-        print("\n Embedded Vectors successfully saved to " + filename)
+        print("Embedded Vectors successfully saved to " + filename)
 
 ## Intialize
 csvfile = 'labeled_ev.csv'
@@ -63,6 +63,7 @@ pklfile = 'labeled_ev.pkl'
 metadata = load_metadata('images')
 nn4_small2_pretrained = create_model()
 nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
+alignment = AlignDlib('models/landmarks.dat')
 
 ## Get Embedded Vectors
 embedded = np.zeros((metadata.shape[0], 128))
@@ -71,6 +72,6 @@ for i, m in enumerate(metadata):
     img = align_image(img)
     img = (img / 255.).astype(np.float32)
     embedded[i] = nn4_small2_pretrained.predict(np.expand_dims(img, axis=0))[0]
-    print(embedded[i])
-#save_embedded_vectors_to_csv(csvfile)
-#save_embedded_vectors_to_pkl(pklfile)
+
+save_embedded_vectors_to_csv(csvfile, embedded)
+save_embedded_vectors_to_pkl(pklfile, embedded)
