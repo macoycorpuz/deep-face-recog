@@ -67,38 +67,40 @@ def get_distance_from_csv(idx1, idx2):
         ev2 = np.array(ev2)
     print(distance(ev1,ev2))
 
-#Save embedded vector to pkl function
-def save_embedded_vectors_to_pkl(filename, embedded_vectors):
-    output = open(filename, 'wb')
-    pickle.dump(embedded_vectors, output)
-    output.close()
-    print("Embedded Vectors successfully saved to " + filename)
 
-#Save embedded vector to csv function
-def save_embedded_vectors_to_csv(filename, embedded_vectors):
-    with open(filename, 'w') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for img_vector in embedded_vectors:
-            spamwriter.writerow(img_vector)
-        print("Embedded Vectors successfully saved to " + filename)
+#########################################
 
-## Load Files
-evfile = 'embedded-vectors/labeled_ev.csv'
+#Initialize
 metadata = load_metadata('images')
+example_data = load_metadata('examples')
+nn4_small2_pretrained = create_model()
+nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
+alignment = AlignDlib('models/landmarks.dat')
+evfile='embedded-vectors/pca_labeled_ev.csv'
 
 ## Read CSV file
 df = pd.read_csv(evfile, delimiter=' ', quotechar='|', header=None)
 df.dropna(how="all", inplace=True)
 data = df.values
+print(df) 
 
-## Transform to PCA data
-z_scaler = StandardScaler()
-z_data = z_scaler.fit_transform(data)
-pca_trafo = PCA(n_components=2)
-pca_data = pca_trafo.fit_transform(z_data)
 
-## Save pca filew
-csvfile = 'pca_labeled_ev.csv'
-pklfile = 'pca_labeled_ev.pkl'
-save_embedded_vectors_to_csv(csvfile, pca_data)
-save_embedded_vectors_to_pkl(pklfile, pca_data)
+# img = load_image(example_data[0].image_path())
+# img = align_image(img)
+# img = (img / 255.).astype(np.float32)
+# embedded_sample = nn4_small2_pretrained.predict(np.expand_dims(img, axis=0))[0]
+# print(embedded_sample)
+
+# z_scaler = StandardScaler()
+# z_data = z_scaler.fit_transform(embedded_sample)
+# pca_trafo = PCA(n_components=2)
+# pca_data = pca_trafo.fit_transform(embedded_sample)
+
+## Plot data
+# plt.figure(figsize=(8,3))
+# plt.suptitle(f'Distance = {distance(embedded[idx1], embedded[idx2]):.2f}')
+# plt.subplot(121)
+# plt.imshow(img)
+# plt.subplot(122)
+# plt.imshow(load_image(metadata[idx2].image_path()))
+# plt.show()
