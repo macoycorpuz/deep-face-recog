@@ -2,3 +2,4 @@
 *.iml
 *-checkpoint.ipynb
 models/
+embedded/vectors

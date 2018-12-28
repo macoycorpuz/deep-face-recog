@@ -2,9 +2,9 @@ import bz2
 import os
 import numpy as np
 from urllib.request import urlopen
-from lib.evhelper import save_embedded_vectors_to_csv, save_embedded_vectors_to_pkl
-from lib.imglib import load_metadata, load_image, align_image
+from lib.imgutil import load_metadata, load_image, align_image, save_embedded_vectors_to_csv, save_embedded_vectors_to_pkl
 from lib.model import create_model
+from lib.align import AlignDlib
 
 def download_landmarks(dst_file):
     url = 'http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2'
@@ -18,26 +18,34 @@ def download_landmarks(dst_file):
 
 def download_embedded_vectors(csvf, pklf):
     metadata = load_metadata('images')
-    nn4_small2_pretrained = create_model()
-    nn4_small2_pretrained.load_weights('weights/nn4.small2.v1.h5')
+    alignment = AlignDlib('models/landmarks.dat')
+    nn4 = create_model()
+    nn4.load_weights('weights/nn4.small2.v1.h5')
     embedded = np.zeros((metadata.shape[0], 128))
     for i, m in enumerate(metadata):
         img = load_image(m.image_path())
-        img = align_image(img)
+        img = align_image(alignment, img)
         img = (img / 255.).astype(np.float32)
-        embedded[i] = nn4_small2_pretrained.predict(np.expand_dims(img, axis=0))[0]
+        embedded[i] = nn4.predict(np.expand_dims(img, axis=0))[0]
 
-        save_embedded_vectors_to_csv(csvf, embedded)
-        save_embedded_vectors_to_pkl(pklf, embedded)
+    save_embedded_vectors_to_csv(csvf, embedded)
+    save_embedded_vectors_to_pkl(pklf, embedded)
 
-dst_dir = 'models'
-landmarkfile = os.path.join(dst_dir, 'landmarks.dat')
-csvfile = os.path.join(dst_dir, 'labeled_ev.csv')
-pklfile = os.path.join(dst_dir, 'labeled_ev.pkl')
+dir_models = 'models'
+dir_embedded_vectors = 'embedded-vectors'
+landmark_file = 'landmarks.dat'
+csv_file = 'labeled_ev.csv'
+pkl_file = 'labeled_ev.pkl'
 
-if not os.path.exists(dst_dir): 
-    os.makedirs(dst_dir)
-#if not os.path.exists(landmarkfile):
-    #download_landmarks(landmarkfile)
+landmark_file = os.path.join(dir_models, landmark_file)
+csv_file = os.path.join(dir_embedded_vectors, csv_file)
+pkl_file = os.path.join(dir_embedded_vectors, pkl_file)
 
-download_embedded_vectors(csvfile, pklfile)
+if not os.path.exists(dir_models): 
+    os.makedirs(dir_models)
+if not os.path.exists(dir_embedded_vectors): 
+    os.makedirs(dir_embedded_vectors)
+if not os.path.exists(landmark_file):
+    download_landmarks(landmarkfile)
+
+download_embedded_vectors(csv_file, pkl_file)

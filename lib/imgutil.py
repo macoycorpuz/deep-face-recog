@@ -47,7 +47,7 @@ def distance(emb1, emb2):
 #Save embedded vector to pkl function
 def save_embedded_vectors_to_pkl(filename, embedded_vectors):
     output = open(filename, 'wb')
-    pickle.dump(embedded, output)
+    pickle.dump(embedded_vectors, output)
     output.close()
     print("Embedded Vectors successfully saved to " + filename)
 
