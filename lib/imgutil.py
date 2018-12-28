@@ -1,8 +1,10 @@
 import cv2
 import numpy as np
 import os.path
-
-from lib.align import AlignDlib
+import csv
+import pickle
+import numpy as np
+from  lib.align import AlignDlib
 
 class IdentityMetadata():
     def __init__(self, base, name, file):
@@ -18,7 +20,7 @@ class IdentityMetadata():
 
     def image_path(self):
         return os.path.join(self.base, self.name, self.file) 
-    
+  
 def load_metadata(path):
     metadata = []
     for i in os.listdir(path):
@@ -35,11 +37,24 @@ def load_image(path):
     # in BGR order. So we need to reverse them
     return img[...,::-1]
 
-def align_image(img):
-    alignment = AlignDlib('models/landmark.dat')
-    return alignment.align(96, img, alignment.getLargestFaceBoundingBox(img), 
-                           landmarkIndices=AlignDlib.OUTER_EYES_AND_NOSE)
-                           
+def align_image(alignment, img):
+    return alignment.align(96, img, alignment.getLargestFaceBoundingBox(img), landmarkIndices=AlignDlib.OUTER_EYES_AND_NOSE)
 
+#Get distance of to embedded files
 def distance(emb1, emb2):
     return np.sum(np.square(emb1 - emb2))
+
+#Save embedded vector to pkl function
+def save_embedded_vectors_to_pkl(filename, embedded_vectors):
+    output = open(filename, 'wb')
+    pickle.dump(embedded, output)
+    output.close()
+    print("Embedded Vectors successfully saved to " + filename)
+
+#Save embedded vector to csv function
+def save_embedded_vectors_to_csv(filename, embedded_vectors):
+    with open(filename, 'w') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        for img_vector in embedded_vectors:
+            spamwriter.writerow(img_vector)
+        print("Embedded Vectors successfully saved to " + filename)
